@@ -6,6 +6,7 @@ export default function AddTodo({ addTodoHandler }){
     const [text, setText] = useState('');
 
     const changeHandler = (value) => {
+        console.log(value)
         setText(value)
     }
 

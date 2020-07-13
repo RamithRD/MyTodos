@@ -17,10 +17,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ramith.rdr.mytodos.rn"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "android": {
+      "package": "com.ramith.rdr.mytodos.rn"
+    },
+    "entryPoint": "node_modules/expo/AppEntry.js"
   }
 }

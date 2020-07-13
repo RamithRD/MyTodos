@@ -1,26 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, FlatList, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Header from './components/header'
 import TodoItem from './components/todoItem'
 import AddTodo from './components/addTodo'
+import AsyncStorage from '@react-native-community/async-storage'
 
 export default function App() {
 
-  const [todos, setTodos] = useState([
-    {text: 'buy coffee',  key: '1'},
-    {text: 'buy bread', key: '2'},
-    {text: 'buy butter', key: '3'}
-  ]);
+  const STORAGE_KEY = '@save_todos'
 
-  const addTodoHandler = (text) => {
+  const [todos, setTodos] = useState([]);
+
+  useEffect(() => {
+    async function initTodos(){
+      await getTodos()
+    }
+    initTodos();
+  }, [])
+
+  const saveTodos = async () => {
+    try {
+      console.log(JSON.stringify(todos))
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+      //alert(todos.toString())
+    } catch (e) {
+      alert('Failed to save the data to the storage')
+    }
+  }
+
+  const getTodos = async () => {
+    try {
+      const todos = await AsyncStorage.getItem(STORAGE_KEY);
+
+      //lert(todos.toString());
+  
+      if (todos !== null) {
+        const todosArray = JSON.parse(todos);
+        //console.log(todosArray);
+        setTodos(todosArray)
+      }
+    } catch (e) {
+      alert('Failed to fetch the data from storage')
+    }
+  }
+
+  const clearStorage = async () => {
+    try {
+      await AsyncStorage.clear()
+    } catch (e) {
+      alert('Failed to clear the async storage.')
+    }
+  }
+
+  const addTodoHandler = async (text) => {
 
     if(text.length > 3){
-      setTodos((prevTodos) => {
-        return [
-          { text: text, key: Math.random().toString() },
-          ...prevTodos
-        ]
+      setTodos(() => {
+        return todos.push({ text: text, key: todos.length + 1 })  
       })
+     await clearStorage();
+     await saveTodos();
     } else {
       Alert.alert('OOPS!', 'Todos must be over 3 characters long', [{
         text: 'Okay', onPress: () => console.log('alert closed')
@@ -30,12 +69,13 @@ export default function App() {
 
   }
 
-  const deleteTodoHandler = (key) => {
+  const deleteTodoHandler = async (key) => {
     setTodos((prevTodos) => {
 
       return prevTodos.filter(todo => todo.key != key)
 
     })
+    await saveTodos();
   }
 
   return (
